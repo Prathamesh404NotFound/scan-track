@@ -3,6 +3,7 @@ import type { AttendanceRecord } from "@/types/models";
 import { getAttendance, postScan, checkHealth, subscribeToAttendance } from "@/services/api";
 import { addToQueue, getQueueSize, processQueue } from "@/services/offlineQueue";
 import { handleScan, getCurrentlyInside } from "@/services/scanHandler";
+import autoCheckoutService from "@/services/autoCheckout";
 
 interface AttendanceState {
   records: AttendanceRecord[];
@@ -81,9 +82,13 @@ export function AttendanceProvider({ children }: { children: React.ReactNode }) 
       }
     }, 15000);
 
+    // Start auto-checkout service
+    autoCheckoutService.startScheduledCheckout();
+
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
       if (unsubscribeRef.current) unsubscribeRef.current();
+      autoCheckoutService.stopScheduledCheckout();
     };
   }, [refreshAttendance]);
 

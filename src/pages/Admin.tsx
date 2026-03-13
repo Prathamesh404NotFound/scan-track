@@ -11,6 +11,7 @@ import type { Student } from "@/types/models";
 import { getStudents, createStudent, updateStudent, deleteStudent } from "@/services/api";
 import { toast } from "sonner";
 import ExcelImport from "@/components/ExcelImport";
+import AutoCheckoutManager from "@/components/AutoCheckoutManager";
 
 const LOCAL_KEY = "lib-attendance-students";
 
@@ -182,6 +183,8 @@ export default function Admin() {
           </TableBody>
         </Table>
       </motion.div>
+
+      <AutoCheckoutManager />
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
