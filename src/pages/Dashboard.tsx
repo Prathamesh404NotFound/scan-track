@@ -55,10 +55,9 @@ export default function Dashboard() {
 
   return (
     <div className="container space-y-6 py-6">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard icon={LogIn} label="Today's Entries" value={todayEntries} color="bg-green-100 text-green-600" />
         <StatCard icon={LogOut} label="Today's Exits" value={todayExits} color="bg-green-100 text-green-600" />
-        <StatCard icon={Users} label="Currently Inside" value={currentlyInside} color="bg-green-100 text-green-600" />
         <StatCard icon={UserCheck} label="Unique Users Today" value={uniqueUsersToday} color="bg-green-100 text-green-600" />
         <StatCard icon={Clock} label="Avg Duration (hh:mm)" value={calculateAverageDuration()} color="bg-green-100 text-green-600" />
       </div>
