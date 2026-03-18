@@ -12,6 +12,7 @@ export default function Header() {
     { to: "/", label: "Dashboard", icon: BookOpen },
     { to: "/admin", label: "Students", icon: Users },
     { to: "/reports", label: "Reports", icon: BarChart3 },
+    { to: "/settings", label: "Settings", icon: Settings },
   ];
 
   return (

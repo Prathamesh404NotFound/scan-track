@@ -8,6 +8,22 @@ const COLORS = ["hsl(152,60%,36%)", "hsl(152,40%,55%)", "hsl(148,30%,70%)", "hsl
 export default function Reports() {
   const { records } = useAttendance();
 
+  // Separate students and faculty records
+  const studentRecords = useMemo(() => {
+    return records.filter(r =>
+      r.Name &&
+      !r.Name.toLowerCase().includes('faculty') &&
+      !r.Name.toLowerCase().includes('staff')
+    );
+  }, [records]);
+
+  const facultyRecords = useMemo(() => {
+    return records.filter(r =>
+      r.Name &&
+      (r.Name.toLowerCase().includes('faculty') || r.Name.toLowerCase().includes('staff'))
+    );
+  }, [records]);
+
   const hourlyData = useMemo(() => {
     const hours: Record<number, number> = {};
     records.forEach((r) => {
@@ -27,6 +43,24 @@ export default function Reports() {
       { name: "Exited", value: exited },
     ].filter((d) => d.value > 0);
   }, [records]);
+
+  const studentStatusData = useMemo(() => {
+    const inside = studentRecords.filter((r) => !r.ExitTime).length;
+    const exited = studentRecords.filter((r) => r.ExitTime).length;
+    return [
+      { name: "Students Inside", value: inside },
+      { name: "Students Exited", value: exited },
+    ].filter((d) => d.value > 0);
+  }, [studentRecords]);
+
+  const facultyStatusData = useMemo(() => {
+    const inside = facultyRecords.filter((r) => !r.ExitTime).length;
+    const exited = facultyRecords.filter((r) => r.ExitTime).length;
+    return [
+      { name: "Faculty Inside", value: inside },
+      { name: "Faculty Exited", value: exited },
+    ].filter((d) => d.value > 0);
+  }, [facultyRecords]);
 
   const topStudents = useMemo(() => {
     const counts: Record<string, { name: string; visits: number }> = {};
@@ -68,11 +102,10 @@ export default function Reports() {
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie data={statusData} cx="50%" cy="50%" innerRadius={60} outerRadius={90} paddingAngle={4} dataKey="value" label={({ name, value }) => `${name}: ${value}`}>
-                  {statusData.map((_, i) => (
-                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                  {statusData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
               </PieChart>
             </ResponsiveContainer>
           </motion.div>

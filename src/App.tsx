@@ -8,6 +8,7 @@ import Header from "@/components/Header";
 import Dashboard from "@/pages/Dashboard";
 import Admin from "@/pages/Admin";
 import Reports from "@/pages/Reports";
+import Settings from "@/pages/Settings";
 import NotFound from "./pages/NotFound";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
@@ -27,6 +28,7 @@ const App = () => (
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/reports" element={<Reports />} />
+                <Route path="/settings" element={<Settings />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </div>
