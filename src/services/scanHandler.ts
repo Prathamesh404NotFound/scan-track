@@ -26,7 +26,11 @@ interface ScanResult {
 // In-memory cache for single-instance deployment
 class AttendanceCache {
   private cache = new Map<string, CacheEntry>();
-  private readonly DEFAULT_TTL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+  private DEFAULT_TTL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+  setDefaultTtl(ms: number): void {
+    this.DEFAULT_TTL = ms;
+  }
 
   set(key: string, value: Omit<CacheEntry, 'timer'>, ttlMs: number = this.DEFAULT_TTL): void {
     // Clear existing timer if any
@@ -91,7 +95,8 @@ const attendanceCache = new AttendanceCache();
 
 // Debounce map to prevent rapid duplicate scans
 const debounceMap = new Map<string, NodeJS.Timeout>();
-const DEBOUNCE_TIME = 2000; // 2 seconds
+let DEBOUNCE_TIME = 2000; // 2 seconds — configurable via updateScanSettings
+let CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours — configurable via updateScanSettings
 
 // Database operations
 class AttendanceDB {
@@ -251,9 +256,18 @@ export async function handleScan(barcode: string): Promise<ScanResult> {
     // Step 3: No active record -> Check In
     console.log('📥 No active record - Processing checkin for barcode:', barcode);
 
-    // Find student information
+    // Find student information — MUST be a registered student
     const student = await attendanceDB.findStudent(barcode);
-    const name = student?.Name || "Unknown user";
+
+    if (!student) {
+      console.warn('⚠️ Unknown barcode scanned (not registered):', barcode);
+      return {
+        success: false,
+        message: `Unknown barcode "${barcode}" — not registered in the system`
+      };
+    }
+
+    const name = student.Name;
 
     // Create new attendance record
     const attendanceId = await attendanceDB.createAttendance({
@@ -320,10 +334,24 @@ export function addTestStudent(): void {
   console.log('Test student functionality available');
 }
 
+// Runtime settings update — called by settingsContext when user changes scan settings
+export function updateScanSettings(settings: { debounceTime?: number; cacheTtl?: number }): void {
+  if (settings.debounceTime !== undefined) {
+    DEBOUNCE_TIME = settings.debounceTime;
+    console.log(`Scan debounce updated to ${DEBOUNCE_TIME}ms`);
+  }
+  if (settings.cacheTtl !== undefined) {
+    CACHE_TTL = settings.cacheTtl;
+    attendanceCache.setDefaultTtl(CACHE_TTL);
+    console.log(`Cache TTL updated to ${CACHE_TTL}ms`);
+  }
+}
+
 export default {
   handleScan,
   getCurrentlyInside,
   getCacheStats,
   clearCache,
-  addTestStudent
+  addTestStudent,
+  updateScanSettings
 };

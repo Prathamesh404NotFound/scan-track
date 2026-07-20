@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Users, CheckCircle, AlertCircle, Play, Square } from "lucide-react";
+import { Clock, CheckCircle, AlertCircle } from "lucide-react";
 import autoCheckoutService, { type AutoCheckoutResult } from "@/services/autoCheckout";
+import { useSettings } from "@/store/settingsContext";
 import { toast } from "sonner";
 
 export default function AutoCheckoutManager() {
+  const { settings } = useSettings();
   const [status, setStatus] = useState(autoCheckoutService.getStatus());
   const [lastResult, setLastResult] = useState<AutoCheckoutResult | null>(null);
   const [isManualCheckout, setIsManualCheckout] = useState(false);
@@ -68,7 +70,7 @@ export default function AutoCheckoutManager() {
         {/* Status Overview */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="text-center">
-            <div className="text-2xl font-bold text-primary">{status.checkoutTime}</div>
+            <div className="text-2xl font-bold text-primary">{settings.autoCheckoutTime}</div>
             <div className="text-xs text-muted-foreground">Checkout Time</div>
           </div>
           <div className="text-center">
@@ -76,10 +78,10 @@ export default function AutoCheckoutManager() {
             <div className="text-xs text-muted-foreground">Currently Inside</div>
           </div>
           <div className="text-center">
-            <Badge variant={status.isScheduled ? "default" : "secondary"}>
-              {status.isScheduled ? "Active" : "Inactive"}
+            <Badge variant={settings.autoCheckoutEnabled ? "default" : "secondary"}>
+              {settings.autoCheckoutEnabled ? "Enabled" : "Disabled"}
             </Badge>
-            <div className="text-xs text-muted-foreground mt-1">Service Status</div>
+            <div className="text-xs text-muted-foreground mt-1">Auto-Checkout</div>
           </div>
           <div className="text-center">
             <Badge variant={status.isRunning ? "destructive" : "default"}>
